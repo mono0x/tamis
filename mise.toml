@@ -1,0 +1,63 @@
+[tools]
+dprint = "0.56.1"
+go = "1.27.1"
+hk = "2.0.0"
+pkl = "0.32.1"
+zizmor = "1.30.0"
+
+[env]
+_.file = ".env"
+GOPROXY = "https://golang.flatt.tech"
+
+[vars]
+testopts = "-race ./..."
+buildopts = '-tags netgo,timetzdata -installsuffix netgo -ldflags "-s -extldflags -static"'
+
+[tasks.build]
+run = "go build {{vars.buildopts}} ./cmd/tamis"
+env = { CGO_ENABLED = "0" }
+
+[tasks.run]
+run = "go run ./cmd/tamis"
+
+[tasks.test]
+run = "go tool gotestsum -- {{vars.testopts}}"
+
+[tasks."check:mod"]
+run = "go mod verify"
+
+[tasks."check:goreleaser"]
+run = "go tool goreleaser check"
+
+[tasks."release:snapshot"]
+run = "go tool goreleaser release --snapshot --clean"
+
+[tasks."check:vet"]
+run = "sh scripts/check-go.sh vet ./..."
+
+[tasks."check:staticcheck"]
+run = "sh scripts/check-go.sh staticcheck ./..."
+
+[tasks."check:errcheck"]
+run = "sh scripts/check-go.sh errcheck ./..."
+
+[tasks."check:govulncheck"]
+run = "sh scripts/check-go.sh govulncheck ./..."
+
+[tasks."check:hk"]
+run = "hk check --all"
+
+[tasks.check]
+depends = ["check:*"]
+
+[tasks.fix]
+run = "hk fix --all"
+
+[tasks.verify-meta]
+run = "go test -tags exiftool ./internal/meta -run TestExiftoolParity"
+
+[tasks.verify-meta-diff]
+run = "sh scripts/verify-meta.sh"
+
+[tasks.bench]
+run = "go test -run '^$' -bench . -benchmem ./..."

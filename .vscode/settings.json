@@ -1,0 +1,7 @@
+{
+  "dprint.path": "~/.local/share/mise/shims/dprint",
+  "[json][jsonc][markdown][toml][yaml]": {
+    "editor.defaultFormatter": "dprint.dprint",
+    "editor.formatOnSave": true
+  }
+}

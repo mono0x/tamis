@@ -1,0 +1,24 @@
+version: 1
+
+settings:
+  on_conflict: rename
+
+vars:
+  archive: ~/Media/Archive
+
+rules:
+  - name: archive-images
+    location: ~/Media/Inbox
+    recursive: true
+    when: 'kind == "image" && captured != nil'
+    actions:
+      - copy: '{{archive}}/Images/{{captured | date "2006/01"}}/'
+        rename: '{{captured | date "20060102_150405"}}_{{basename}}{{ext}}'
+
+  - name: archive-videos
+    location: ~/Media/Inbox
+    recursive: true
+    when: 'kind == "video" && captured != nil'
+    actions:
+      - copy: '{{archive}}/Videos/{{captured | date "2006/01"}}/'
+        rename: '{{captured | date "20060102_150405"}}_{{basename}}{{ext}}'

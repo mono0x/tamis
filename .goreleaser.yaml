@@ -1,0 +1,37 @@
+version: 2
+project_name: tamis
+
+builds:
+  - main: ./cmd/tamis
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    tags:
+      - netgo
+      - timetzdata
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  - formats: [tar.gz]
+    files:
+      - README.md
+      - README.ja.md
+      - config.example.yaml
+      - docs/configuration/**
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: git
+
+release:
+  target_commitish: "{{ .FullCommit }}"
