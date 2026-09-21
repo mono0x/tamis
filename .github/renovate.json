@@ -1,5 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>mono0x/renovate-config:development"],
+  "extends": ["github>mono0x/renovate-config:maintenance"],
   "postUpdateOptions": ["gomodTidy"]
 }
