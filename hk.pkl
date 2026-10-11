@@ -1,6 +1,6 @@
-amends "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Config.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.4.0/hk@2.4.0#/Config.pkl"
 
-import "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.4.0/hk@2.4.0#/Builtins.pkl"
 
 local linters = new Mapping<String, Step> {
   ["dprint"] = (Builtins.dprint) {
@@ -9,8 +9,13 @@ local linters = new Mapping<String, Step> {
   ["go-fmt"] = Builtins.go_fmt
   ["pkl"] = Builtins.pkl
   ["pkl-format"] = Builtins.pkl_format
-  ["zizmor"] = (Builtins.zizmor) {
-    glob = ".github/{actions,workflows}/**/*.{yaml,yml}"
+  ["jactionlint"] {
+    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml", "**/action.{yml,yaml}")
+    batch = true
+    diagnostic_format = "sarif"
+    check = "mise exec -- jactionlint --format sarif {{files}}"
+    check_diff = "mise exec -- hk util sarif-diff -- jactionlint --format sarif {{files}}"
+    fix = "mise exec -- jactionlint --fix {{files}}"
   }
 }
 

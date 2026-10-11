@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   check:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -25,6 +26,7 @@ jobs:
       - run: mise run check
 
   test:
+    timeout-minutes: 30
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
@@ -40,6 +42,7 @@ jobs:
       - run: mise run build
 
   runtime-exec-boundary:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

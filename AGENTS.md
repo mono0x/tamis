@@ -17,9 +17,9 @@ The toolchain and development tasks are defined in `mise.toml` (`mise trust && m
 ```sh
 mise run build         # CGO_ENABLED=0 static build of ./cmd/tamis
 mise run test          # gotestsum -race ./... on the host OS
-mise run fix           # hk fix --all (dprint, gofmt, pkl, zizmor) — run before committing
+mise run fix           # hk fix --all (dprint, gofmt, pkl, jactionlint) — run before committing
 mise run lint          # go vet + staticcheck + errcheck + govulncheck for both targets
-hk check --all         # OS-independent: format + pkl + zizmor, no writes
+hk check --all         # OS-independent: format + pkl + jactionlint, no writes
 go mod verify         # OS-independent: verify dependency modules
 mise run bench         # go test -run '^$' -bench . -benchmem ./...
 mise run run -- scan … # go run ./cmd/tamis
