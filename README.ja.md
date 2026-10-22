@@ -24,7 +24,7 @@ mise exec -- tamis --version
 
 [GitHub Releases](https://github.com/mono0x/tamis/releases) から macOS / Linux と architecture（`amd64` / `arm64`）に合う archive をダウンロードし、展開した `tamis` を `PATH` に配置してください。各 Release に SHA-256 checksum を記載した `checksums.txt` が付属します。`tamis --version` でバージョンを確認できます。
 
-source からインストールする場合は Go 1.27.1 以降が必要です:
+source からインストールする場合は Go 1.27.3 以降が必要です:
 
 ```sh
 go install github.com/mono0x/tamis/cmd/tamis@latest

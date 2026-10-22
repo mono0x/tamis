@@ -24,7 +24,7 @@ mise exec -- tamis --version
 
 Download the macOS or Linux archive for your architecture (`amd64` or `arm64`) from [GitHub Releases](https://github.com/mono0x/tamis/releases), extract it, and put `tamis` on your `PATH`. Each release includes `checksums.txt` with SHA-256 checksums. Check the installed version with `tamis --version`.
 
-To install from source, Go 1.27.1 or later is required:
+To install from source, Go 1.27.3 or later is required:
 
 ```sh
 go install github.com/mono0x/tamis/cmd/tamis@latest

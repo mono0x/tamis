@@ -1,6 +1,6 @@
 module github.com/mono0x/tamis
 
-go 1.27.1
+go 1.27.3
 
 require (
 	github.com/abema/go-mp4 v1.7.3
