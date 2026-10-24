@@ -26,6 +26,7 @@ archives:
       - README.ja.md
       - config.example.yaml
       - docs/configuration/**
+      - docs/behavior/**
 
 checksum:
   name_template: checksums.txt

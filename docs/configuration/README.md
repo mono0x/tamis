@@ -1,6 +1,6 @@
 # YAML configuration reference
 
-[日本語](README.ja.md) · [README](../../README.md) · [Example configuration](../../config.example.yaml)
+[日本語](README.ja.md) · [README](../../README.md) · [Example configuration](../../config.example.yaml) · [Scanning and execution](../behavior/README.md)
 
 This reference describes configuration version `1`. Pass the file explicitly to `tamis check CONFIG`, `tamis preview CONFIG`, or `tamis apply CONFIG`. Tamis does not discover a configuration automatically.
 
@@ -226,7 +226,7 @@ Each action object must select exactly one kind: nonempty `copy`, nonempty `move
 | ------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `copy`        | string template | Copy to a file or directory destination.                                                                                           |
 | `move`        | string template | Move to a file or directory destination; must be the rule's last action.                                                           |
-| `trash`       | boolean         | Use `true` to move to the trash holding directory; must be the rule's last action.                                                 |
+| `trash`       | boolean         | Use `true` to move to the system trash (or CLI `--trash-dir`); must be the rule's last action.                                     |
 | `shell`       | object          | Run a command on the original input before any copies. See below.                                                                  |
 | `rename`      | string template | Optional filename for `copy` or `move` destinations ending in `/`; otherwise ignored. Ignored for `trash`, prohibited for `shell`. |
 | `on_conflict` | string          | Optional `rename`, `skip`, or `fail`; defaults to `settings.on_conflict`. Prohibited for `shell`.                                  |
@@ -288,6 +288,29 @@ actions:
 The command inherits the process's working directory and environment, with `env` entries overriding inherited values. It receives no stdin. stdout is discarded; failure messages include up to the first 16 KiB of stderr. The timeout is five minutes and is not configurable in YAML. Background tasks are unsupported; the process group is terminated on completion or cancellation.
 
 Shell runs as the user without a sandbox and may edit the original in place; execute only trusted configurations. `preview` and `explain` display commands and rendered environment values without executing them. After success, the input must still be a regular file; Tamis refreshes its identity, size, and mtime for subsequent operations. Metadata, conditions, and destinations are not reevaluated after a shell action. Command failures stop the run without rolling back edits; a later copy skip also leaves the edited original in place.
+
+### Example: write a capture time from a filename
+
+This rule fragment writes a PNG capture time parsed from its filename, then copies and trashes the input. ExifTool is needed only for this example; shell actions can use any installed tool or script.
+
+```yaml
+capture: '^.+? (?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2}) (?P<hour>\d{1,2})_(?P<minute>\d{2})_(?P<second>\d{2})\.png$'
+actions:
+  - shell:
+      run: |
+        exiftool -P -overwrite_original \
+          "-EXIF:DateTimeOriginal=$CAPTURED" \
+          "-EXIF:OffsetTimeOriginal=+09:00" \
+          "$TAMIS_FILE"
+      env:
+        CAPTURED: "{{capture.year}}:{{capture.month}}:{{capture.day}} {{capture.hour | pad 2}}:{{capture.minute}}:{{capture.second}}"
+  - copy: "~/Media/Archive/"
+  - trash: true
+```
+
+Planning uses metadata scanned before the shell runs. Writing a new capture time does not change later conditions or destinations in that run; use filename captures in destination templates when needed. Commands that replace the source file are supported, provided the result is still a regular file.
+
+Assigning the same fixed timestamp and offset is idempotent for those tag values. Time shifts such as `+=` are not. Rewriting can still change filesystem attributes or file identity; `-P` preserves mtime in this example. Consult the [ExifTool documentation](https://exiftool.org/exiftool_pod2.html) for writing options.
 
 ## Templates and filters
 

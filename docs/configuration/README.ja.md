@@ -1,6 +1,6 @@
 # YAML 設定リファレンス
 
-[English](README.md) · [README](../../README.ja.md) · [設定例](../../config.example.yaml)
+[English](README.md) · [README](../../README.ja.md) · [設定例](../../config.example.yaml) · [スキャン・実行の仕様](../behavior/README.ja.md)
 
 設定の `version: 1` を対象とするリファレンスです。設定ファイルは `tamis check CONFIG`、`tamis preview CONFIG`、`tamis apply CONFIG` に明示的に渡します。設定ファイルの自動検索は行いません。
 
@@ -226,7 +226,7 @@ Linux、非対応の filesystem、値がない場合は `nil` です。リンク
 | ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
 | `copy`        | 文字列テンプレート | ファイルまたはディレクトリ宛先へコピー。                                                                     |
 | `move`        | 文字列テンプレート | ファイルまたはディレクトリ宛先へ移動。rule の最後の action に置く。                                          |
-| `trash`       | 真偽値             | `true` でゴミ箱の退避先ディレクトリへ移動。rule の最後の action に置く。                                     |
+| `trash`       | 真偽値             | `true` で OS 標準のゴミ箱（または CLI の `--trash-dir`）へ移動。rule の最後の action に置く。                |
 | `shell`       | オブジェクト       | copy より前に元の入力に対してコマンドを実行。詳細は後述。                                                    |
 | `rename`      | 文字列テンプレート | 任意。`/` で終わる `copy`・`move` 宛先のファイル名。それ以外では無視。`trash` でも無視し、`shell` では禁止。 |
 | `on_conflict` | 文字列             | 任意。`rename`、`skip`、`fail`。既定値は `settings.on_conflict`。`shell` では禁止。                          |
@@ -288,6 +288,29 @@ actions:
 コマンドはプロセスの作業ディレクトリと環境変数を引き継ぎ、`env` の項目が既存の環境変数を上書きします。stdin は渡しません。stdout は破棄し、失敗時のエラーには stderr の先頭16 KiB までを含めます。timeout は5分で、YAML では変更できません。バックグラウンド処理は非対応で、終了・キャンセル時に process group を終了します。
 
 shell はユーザー権限で sandbox なしに動作し、元ファイルを直接変更できるため、信頼できる設定だけを実行してください。`preview`・`explain` はコマンドと展開済みの環境変数を表示し、実行しません。成功後の入力は引き続き通常ファイルである必要があり、後続操作のために同一性・サイズ・mtime を更新します。shell 後に metadata・条件・宛先は再評価しません。コマンド失敗時は変更を巻き戻さずに停止し、後続 copy が skip された場合も加工済みの元ファイルを残します。
+
+### 例: ファイル名から撮影日時を書き込む
+
+次のルール断片は、PNG のファイル名から撮影日時を書き込み、コピー後に元ファイルをゴミ箱へ移動します。ExifTool が必要なのはこの例を使う場合だけで、shell アクションには任意のインストール済みツールやスクリプトを使えます。
+
+```yaml
+capture: '^.+? (?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2}) (?P<hour>\d{1,2})_(?P<minute>\d{2})_(?P<second>\d{2})\.png$'
+actions:
+  - shell:
+      run: |
+        exiftool -P -overwrite_original \
+          "-EXIF:DateTimeOriginal=$CAPTURED" \
+          "-EXIF:OffsetTimeOriginal=+09:00" \
+          "$TAMIS_FILE"
+      env:
+        CAPTURED: "{{capture.year}}:{{capture.month}}:{{capture.day}} {{capture.hour | pad 2}}:{{capture.minute}}:{{capture.second}}"
+  - copy: "~/Media/Archive/"
+  - trash: true
+```
+
+計画には shell 実行前のメタデータを使います。撮影日時を書き込んでも、その実行中の後続条件や宛先は変わりません。必要に応じて宛先テンプレートにもファイル名の capture を使ってください。コマンドによる元ファイルの置き換えにも対応しますが、結果は通常ファイルである必要があります。
+
+同じ固定の日時とオフセットの代入は、そのタグの値についてべき等です。`+=` などの加算はべき等ではありません。再実行でもファイルシステムの属性やファイルの同一性が変わる場合があり、例の `-P` は mtime を保持する指定です。書き込みオプションは [ExifTool の仕様](https://exiftool.org/exiftool_pod2.html) で確認してください。
 
 ## テンプレートとフィルター
 
