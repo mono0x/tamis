@@ -14,7 +14,9 @@ Tags use `v0.YYYYMMDD.N`: the workflow creation date in `Asia/Tokyo` and `GITHUB
 
 If a job fails, re-run the failed jobs or the whole workflow. Preparation reuses the tag only if it points to the original selected commit and remains an ancestor of `main`. Publication resumes an existing draft and replaces its assets. An already published release is left unchanged, and a full re-run skips its build and publication.
 
-Only the built-in `GITHUB_TOKEN` is needed; no personal access token is required. Preparation has `actions: read` and `contents: write`; the build has `contents: read`, `id-token: write`, and `attestations: write`; publication has `contents: write`. Release runs are serialized.
+Before releasing, install a GitHub App on this repository with **Contents: Read and write** permission. Set the repository variable `RELEASE_APP_CLIENT_ID` to its client ID and the repository secret `RELEASE_APP_PRIVATE_KEY` to its private key.
+
+Preparation uses the built-in `GITHUB_TOKEN` with `actions: read` and `contents: read` for checks, then creates an App installation token with `contents: write` only when a new tag needs pushing. Checkout credentials are not persisted; the push authenticates with the App token through `gh auth git-credential`. The build uses `GITHUB_TOKEN` with `contents: read`, `id-token: write`, and `attestations: write`; publication uses it with `contents: write`. No personal access token is required. Release runs are serialized.
 
 GoReleaser embeds the version in `tamis --version`. Ordinary development builds report `dev`. Archives include only the user-facing documents under `docs/configuration/` and `docs/behavior/`; `docs/development/` is not packaged.
 
