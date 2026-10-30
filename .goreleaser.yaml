@@ -32,7 +32,4 @@ checksum:
   name_template: checksums.txt
 
 changelog:
-  use: git
-
-release:
-  target_commitish: "{{ .FullCommit }}"
+  disable: true
