@@ -69,7 +69,10 @@ func TestExtractRejectsFIFOReplacedAfterWalk(t *testing.T) {
 			}
 		}
 		select {
-		case <-done:
+		case err := <-done:
+			if err != nil {
+				t.Logf("extraction after releasing FIFO: %v", err)
+			}
 		case <-time.After(time.Second):
 		}
 		t.Fatal("FIFO blocked extraction beyond its deadline")
