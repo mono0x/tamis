@@ -17,6 +17,10 @@ local linters = new Mapping<String, Step> {
     check_diff = "mise exec -- hk util sarif-diff -- jactionlint --format sarif {{files}}"
     fix = "mise exec -- jactionlint --fix {{files}}"
   }
+  ["secretlint"] {
+    glob = "**/*"
+    check = "mise exec -- secretlint --no-glob {{ files }}"
+  }
 }
 
 hooks {

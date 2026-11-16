@@ -3,6 +3,7 @@ dprint = "0.63.0"
 go = "1.27.3"
 hk = "2.7.0"
 "github:jdx/jactionlint" = "2.2.0"
+"github:secretlint/secretlint" = { version = "14.0.0", bin = "secretlint" }
 pkl = "0.32.1"
 shellcheck = "0.11.0"
 
