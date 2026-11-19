@@ -14,7 +14,7 @@ import (
 
 	"github.com/mono0x/tamis/internal/plan"
 
-	"go.yaml.in/yaml/v3"
+	"go.yaml.in/yaml/v4"
 )
 
 type Config struct {
